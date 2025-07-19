@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>moir translator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section style="margin-bottom: 20px">
+      <p class="label-root title">주의사항 ::</p>
+
+      <p class="label-root">
+        - 지원되는 문자: a-z, 0-9, 문장부호 4종 (. , ! ?)
+      </p>
+      <p class="label-root">
+        - 미지원 문자 입력시 변환 결과에 포함되지 않습니다.
+      </p>
+      <p class="label-root">- 줄바꿈을 위해 Enter를 생활화하세요.</p>
+      <p class="label-root">
+        - 오류리포트, 질문, 문자 추가 요청, 기타문의는... 아직 받지않음
+      </p>
+    </section>
+    <section class="form-wrapper">
+      <textarea
+        id="input"
+        class="input-root textarea"
+        placeholder="이곳에 영문을 입력하세요"
+        cols="40"
+        rows="10"
+      ></textarea>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: right;
+        "
+      >
+        <span class="text-root">자간</span>
+        <input
+          type="number"
+          id="letterSpacing"
+          class="input-root"
+          placeholder="자간"
+          style="width: 80px"
+          value="-60"
+        />
+        <span class="text-root">행간</span>
+        <input
+          type="number"
+          id="lineSpacing"
+          class="input-root"
+          placeholder="행간"
+          style="width: 80px"
+          value="200"
+        />
+        <span class="text-root">띄어쓰기</span>
+        <input
+          type="number"
+          id="wordSpacing"
+          class="input-root"
+          placeholder="띄어쓰기"
+          style="width: 80px"
+          value="80"
+        />
+        <button id="saveBtn" disabled>png 저장</button>
+        <button id="renderBtn">변환</button>
+      </div>
+
+      <div class="divider"></div>
+    </section>
+
+    <section>
+      <canvas id="output" width="600" height="600" class="canvas-root"></canvas>
+    </section>
+    <script src="main.js"></script>
+  </body>
+</html>
