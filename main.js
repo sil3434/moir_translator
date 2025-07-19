@@ -110,7 +110,7 @@ function getGlyphs(text, imagesBasePath) {
       const chars = word.split("");
 
       for (let i = 0; i < chars.length; i++) {
-        const char = chars[i];
+        const char = chars[i].toLowerCase();
         if (!isValidChar(char)) continue; // undefined, null, "" 방어
 
         //문장부호, 숫자는 문자와 결합하지 않도록 별도 처리
@@ -152,7 +152,7 @@ function getGlyphs(text, imagesBasePath) {
 
 function assignSyllableId(word, imagesBasePath) {
   const glyphs = word.syllables[0].glyphs;
-  const isLongWord = glyphs.length >= 3;
+  const isLongWord = glyphs.filter((glyph) => glyph.isLetter).length >= 3;
 
   if (!isLongWord) {
     return glyphs.map(
