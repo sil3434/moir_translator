@@ -154,90 +154,94 @@ function assignSyllableId(word, imagesBasePath) {
   const glyphs = word.syllables[0].glyphs;
   const isLongWord = glyphs.filter((glyph) => glyph.isLetter).length >= 3;
 
+  let newSyllables = [];
+
   if (!isLongWord) {
-    return glyphs.map(
+    newSyllables = glyphs.map(
       (glyph, index) =>
         new Syllable({
           glyphs: [glyph],
           syllableId: index,
         })
     );
-  }
-  const combindedGlyphs = glyphs.map((glyph, index) => {
-    const newGlyph = new Glyph({
-      char: glyph.char,
-      isVowel: glyph.isVowel,
-      isCombinedVowel: glyph.isVowel,
-      imagePath: glyph.imagePath,
-      isLetter: glyph.isLetter,
-    });
-    if (glyph.isVowel) {
-      if (index > 0 && glyphs[index - 1].isVowel) {
-        newGlyph.isCombinedVowel = false;
-      } else {
-        newGlyph.imagePath = `${imagesBasePath}${glyph.char}2.svg`;
+  } else {
+    const combindedGlyphs = glyphs.map((glyph, index) => {
+      const newGlyph = new Glyph({
+        char: glyph.char,
+        isVowel: glyph.isVowel,
+        isCombinedVowel: glyph.isVowel,
+        imagePath: glyph.imagePath,
+        isLetter: glyph.isLetter,
+      });
+      if (glyph.isVowel) {
+        if (index > 0 && glyphs[index - 1].isVowel) {
+          newGlyph.isCombinedVowel = false;
+        } else {
+          newGlyph.imagePath = `${imagesBasePath}${glyph.char}2.svg`;
+        }
       }
-    }
-    return newGlyph;
-  });
+      return newGlyph;
+    });
 
-  let currentSyllableGlyphs = [];
-  let syllableId = 0;
-  const resultSyllables = [];
+    let currentSyllableGlyphs = [];
+    let syllableId = 0;
+    const resultSyllables = [];
 
-  for (let i = 0; i < combindedGlyphs.length; i++) {
-    const current = combindedGlyphs[i];
-    const prev = combindedGlyphs[i - 1];
+    for (let i = 0; i < combindedGlyphs.length; i++) {
+      const current = combindedGlyphs[i];
+      const prev = combindedGlyphs[i - 1];
 
-    // Handle non-letter characters (punctuation, numbers etc)
-    if (!current.isLetter) {
-      if (currentSyllableGlyphs.length > 0) {
+      // Handle non-letter characters (punctuation, numbers etc)
+      if (!current.isLetter) {
+        if (currentSyllableGlyphs.length > 0) {
+          resultSyllables.push(
+            new Syllable({
+              glyphs: [...currentSyllableGlyphs],
+              syllableId: syllableId++,
+            })
+          );
+          currentSyllableGlyphs = [];
+        }
+
         resultSyllables.push(
           new Syllable({
-            glyphs: [...currentSyllableGlyphs],
+            glyphs: [current],
             syllableId: syllableId++,
           })
         );
-        currentSyllableGlyphs = [];
+        continue;
       }
 
+      if (i === 0 || prev?.isCombinedVowel) {
+        currentSyllableGlyphs.push(current);
+      } else {
+        if (currentSyllableGlyphs.length > 0) {
+          resultSyllables.push(
+            new Syllable({
+              glyphs: [...currentSyllableGlyphs],
+              syllableId: syllableId++,
+            })
+          );
+        }
+        currentSyllableGlyphs = [current];
+      }
+    }
+
+    if (currentSyllableGlyphs.length > 0) {
       resultSyllables.push(
         new Syllable({
-          glyphs: [current],
+          glyphs: [...currentSyllableGlyphs],
           syllableId: syllableId++,
         })
       );
-      continue;
     }
-
-    if (i === 0 || prev?.isCombinedVowel) {
-      currentSyllableGlyphs.push(current);
-    } else {
-      if (currentSyllableGlyphs.length > 0) {
-        resultSyllables.push(
-          new Syllable({
-            glyphs: [...currentSyllableGlyphs],
-            syllableId: syllableId++,
-          })
-        );
-      }
-      currentSyllableGlyphs = [current];
-    }
+    newSyllables = resultSyllables;
   }
 
-  if (currentSyllableGlyphs.length > 0) {
-    resultSyllables.push(
-      new Syllable({
-        glyphs: [...currentSyllableGlyphs],
-        syllableId: syllableId++,
-      })
-    );
-  }
-
-  const lastSyllable = resultSyllables[resultSyllables.length - 1];
+  const lastSyllable = newSyllables[newSyllables.length - 1];
   const lastGlyph = lastSyllable.glyphs[lastSyllable.glyphs.length - 1];
 
-  const secondLastSyllable = resultSyllables[resultSyllables.length - 2];
+  const secondLastSyllable = newSyllables[newSyllables.length - 2];
   const secondLastGlyph =
     secondLastSyllable.glyphs[secondLastSyllable.glyphs.length - 1];
 
@@ -256,7 +260,7 @@ function assignSyllableId(word, imagesBasePath) {
       })
     );
   }
-  return resultSyllables;
+  return newSyllables;
 }
 
 function translation(text, imagesBasePath) {
