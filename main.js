@@ -101,6 +101,14 @@ function handlePuncAndNumber(char, imagesBasePath) {
     });
   }
 }
+// ... "longWord"를 판단하는 기준에 결합모음이 포함되지 않는다면?
+// 이런 함수가 하나 필요할지도
+
+function getWordLength(word) {
+  //자음이 개수만큼 +1
+  //문장부호는 무시
+  //
+}
 
 function getGlyphs(text, imagesBasePath) {
   const lines = text.split("\n");
@@ -241,24 +249,36 @@ function assignSyllableId(word, imagesBasePath) {
   const lastSyllable = newSyllables[newSyllables.length - 1];
   const lastGlyph = lastSyllable.glyphs[lastSyllable.glyphs.length - 1];
 
-  const secondLastSyllable = newSyllables[newSyllables.length - 2];
-  const secondLastGlyph =
-    secondLastSyllable.glyphs[secondLastSyllable.glyphs.length - 1];
+  console.log("1");
+  console.log("lastSyllable is Letter?", lastGlyph.isLetter);
+  console.log("lastSyllable.glyphs.length", lastSyllable.glyphs.length);
 
   if (lastGlyph.isVowel) {
+    console.log("2");
     lastSyllable.glyphs.push(
       new Glyph({
         char: "done",
         imagePath: `${imagesBasePath}done.svg`,
       })
     );
-  } else if (!lastGlyph.isLetter && secondLastGlyph.isVowel) {
-    secondLastSyllable.glyphs.push(
-      new Glyph({
-        char: "done",
-        imagePath: `${imagesBasePath}done.svg`,
-      })
-    );
+  }
+  //마지막 글립스가 문장부호인 경우, 마지막 문자를 찾아 모음 검사를 한다.
+  // 음... lastSyllable.glyphs.length > 1 이부분 조건문 바꿔야됨
+  else if (!lastGlyph.isLetter && lastSyllable.glyphs.length > 1) {
+    console.log("3");
+    console.log("lastSyllable", lastSyllable);
+    const lastLetterGlyph = lastSyllable.glyphs.find((glyph, index) => {
+      return glyph.isLetter && index < lastSyllable.glyphs.length - 1;
+    });
+    console.log("lastLetterGlyph", lastLetterGlyph);
+    if (lastLetterGlyph.isVowel) {
+      lastLetterGlyph.glyphs.push(
+        new Glyph({
+          char: "done",
+          imagePath: `${imagesBasePath}done.svg`,
+        })
+      );
+    }
   }
   return newSyllables;
 }
